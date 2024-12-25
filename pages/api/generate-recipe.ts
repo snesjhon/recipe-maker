@@ -20,7 +20,6 @@ export default async function handler(
   }
 
   try {
-    // Generate recipe first
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -61,32 +60,13 @@ export default async function handler(
       response_format: { type: "json_object" },
     });
 
-    const recipeData = JSON.parse(
-      completion.choices[0].message.content || "{}"
-    );
+    const recipeData = JSON.parse(completion.choices[0].message.content || "{}");
 
     if (!recipeData) {
       throw new Error("No recipe generated");
     }
 
-    // Generate image using DALL-E
-    const imageResponse = await openai.images.generate({
-      model: "dall-e-3",
-      prompt: `A professional, appetizing photo of ${
-        recipeData.name
-      }. Food photography style, on a beautiful plate, well-lit, high resolution, showing the finished dish. Also use the rest of the recipe data: ${JSON.stringify(
-        recipeData
-      )} to generate the image`,
-      n: 1,
-      size: "1024x1024",
-      quality: "standard",
-      style: "natural",
-    });
-
-    // Add the generated image URL to the recipe
-    recipeData.image = [imageResponse.data[0].url];
-
-    return res.status(200).json({ recipe: JSON.stringify(recipeData) });
+    return res.status(200).json({ recipe: recipeData });
   } catch (error) {
     console.error("Error generating recipe:", error);
     return res.status(500).json({ error: "Failed to generate recipe" });

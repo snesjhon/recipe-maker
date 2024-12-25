@@ -17,7 +17,8 @@ export default function SearchPage() {
     setError(null);
 
     try {
-      const response = await fetch("/api/generate-recipe", {
+      // First, get the recipe
+      const recipeResponse = await fetch("/api/generate-recipe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -25,16 +26,37 @@ export default function SearchPage() {
         body: JSON.stringify({ query }),
       });
 
-      if (!response.ok) {
+      if (!recipeResponse.ok) {
         throw new Error("Failed to generate recipe");
       }
 
-      const data = await response.json();
+      const { recipe: recipeData } = await recipeResponse.json();
+
+      // Then, get the image
+      const imageResponse = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ recipeData }),
+      });
+
+      if (!imageResponse.ok) {
+        throw new Error("Failed to generate image");
+      }
+
+      const { imageUrl } = await imageResponse.json();
+
+      // Combine the data
+      const finalRecipe = {
+        ...recipeData,
+        image: [imageUrl],
+      };
 
       await router.push(
         `/recipe?${new URLSearchParams({
           query: query,
-          recipe: btoa(data.recipe),
+          recipe: btoa(JSON.stringify(finalRecipe)),
         }).toString()}`
       );
     } catch (error) {
