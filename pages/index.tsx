@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 export default function SearchPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -13,10 +14,32 @@ export default function SearchPage() {
     if (!query) return;
 
     setIsLoading(true);
+    setError(null);
+
     try {
-      await router.push(`/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch('/api/generate-recipe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate recipe');
+      }
+
+      const data = await response.json();
+      
+      await router.push(
+        `/recipe?${new URLSearchParams({
+          query: query,
+          recipe: btoa(data.recipe)
+        }).toString()}`
+      );
     } catch (error) {
-      console.error('Navigation error:', error);
+      console.error('Error:', error);
+      setError('Failed to generate recipe. Please try again.');
       setIsLoading(false);
     }
   }
@@ -24,6 +47,12 @@ export default function SearchPage() {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">AI Recipe Search</h1>
+
+      {error && (
+        <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-lg">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="mb-8">
         <div className="flex gap-2">
@@ -34,6 +63,7 @@ export default function SearchPage() {
             className="flex-1 px-4 py-2 border rounded-lg"
             required
             disabled={isLoading}
+            defaultValue={router.query.query as string}
           />
           <button
             type="submit"
