@@ -36,6 +36,6 @@ export default async function handler(
     return res.status(200).json({ imageUrl: imageResponse.data[0].url });
   } catch (error) {
     console.error("Error generating image:", error);
-    return res.status(500).json({ error: "Failed to generate image" });
+    return res.status(500).json({ error });
   }
-} 
+}
