@@ -1,9 +1,9 @@
 import React from "react";
-import { useRouter } from "next/router";
 import { marked } from "marked";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { Recipe } from "../src/types";
 
 interface RecipePageProps {
   query: string;
@@ -42,7 +42,8 @@ export default function SearchPage({
   query,
   recipe: encodedRecipe,
 }: RecipePageProps) {
-  const recipe = JSON.parse(atob(encodedRecipe));
+  const recipe = JSON.parse(atob(encodedRecipe)) as Recipe;
+
   const markdown = recipe
     ? `
 # ${recipe.name}
@@ -110,12 +111,6 @@ ${
         ← Back to Home
       </Link>
 
-      {/* {error && (
-        <div className="p-4 text-red-700 bg-red-100 rounded-lg mb-8">
-          {error}
-        </div>
-      )} */}
-
       {recipe && (
         <>
           {recipe.image && recipe.image[0] && (
@@ -138,41 +133,3 @@ ${
     </div>
   );
 }
-
-// export default function RecipePage({ query, recipe }: RecipePageProps) {
-//   const router = useRouter();
-//   const decodedRecipe = atob(recipe);
-
-//   return (
-//     <div className="max-w-2xl mx-auto p-6">
-//       <div className="mb-8">
-//         <form
-//           action="/"
-//           className="flex gap-2"
-//         >
-//           <input
-//             type="text"
-//             name="query"
-//             value={query}
-//             className="flex-1 px-4 py-2 border rounded-lg"
-//             readOnly
-//           />
-//           <button
-//             type="submit"
-//             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-//           >
-//             New Search
-//           </button>
-//         </form>
-//       </div>
-
-//       <div className="prose max-w-none">
-//         <div
-//           dangerouslySetInnerHTML={{
-//             __html: marked(decodedRecipe),
-//           }}
-//         />
-//       </div>
-//     </div>
-//   );
-// }

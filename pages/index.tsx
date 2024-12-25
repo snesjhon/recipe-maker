@@ -17,29 +17,29 @@ export default function SearchPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/generate-recipe', {
-        method: 'POST',
+      const response = await fetch("/api/generate-recipe", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ query }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate recipe');
+        throw new Error("Failed to generate recipe");
       }
 
       const data = await response.json();
-      
+
       await router.push(
         `/recipe?${new URLSearchParams({
           query: query,
-          recipe: btoa(data.recipe)
+          recipe: btoa(data.recipe),
         }).toString()}`
       );
     } catch (error) {
-      console.error('Error:', error);
-      setError('Failed to generate recipe. Please try again.');
+      console.error("Error:", error);
+      setError("Failed to generate recipe. Please try again.");
       setIsLoading(false);
     }
   }
@@ -91,7 +91,7 @@ export default function SearchPage() {
                 Searching...
               </>
             ) : (
-              'Search'
+              "Search"
             )}
           </button>
         </div>
