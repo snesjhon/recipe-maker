@@ -1,36 +1,57 @@
 export interface Recipe {
-  "@context": string;
+  "@context": "http://schema.org";
   "@type": "Recipe";
   name: string;
-  author?: {
+  author: {
     "@type": "Person";
     name: string;
   };
-  description?: string;
-  datePublished?: string;
+  description: string;
+  datePublished: string;
+  nutrition?: {
+    "@type": "NutritionInformation";
+    calories?: string;
+    fatContent?: string;
+  };
+  recipeYield?:
+    | string
+    | {
+        "@type": "QuantitativeValue";
+        value: number;
+        unitText: string;
+      };
+  prepTime?: string;
+  cookTime?: string;
+  totalTime?: string;
+  cookingMethod?: string;
+  recipeIngredient: string[];
+  recipeInstructions: {
+    "@type": "HowToSection";
+    name: string;
+    itemListElement: {
+      "@type": "HowToStep";
+      text: string;
+      url?: string;
+      image?: string;
+    }[];
+  };
+  recipeCategory?: string[];
+  recipeCuisine?: string[];
+  keywords?: string;
   image?: string[];
+  suitableForDiet?: string[];
+  aggregateRating?: {
+    "@type": "AggregateRating";
+    ratingValue: number;
+    reviewCount: number;
+  };
   video?: {
     "@type": "VideoObject";
     name: string;
     description: string;
-    uploadDate: string;
-    duration: string;
     thumbnailUrl: string;
     contentUrl: string;
-    embedUrl: string;
+    uploadDate: string;
+    duration?: string;
   };
-  recipeYield: string[];
-  prepTime?: string;
-  cookTime?: string;
-  recipeIngredient: string[];
-  recipeInstructions: {
-    "@type": "HowToStep";
-    text: string;
-    name?: string;
-    url?: string;
-    image?: string;
-  }[];
-  recipeCategory?: string[];
-  recipeCuisine?: string[];
-  keywords?: string;
 }

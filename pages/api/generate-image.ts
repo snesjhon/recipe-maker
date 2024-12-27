@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 
 export const config = {
-  maxDuration: 15,
+  maxDuration: 30,
 };
 
 const openai = new OpenAI({

@@ -25,7 +25,13 @@ export default async function handler(
       messages: [
         {
           role: "system",
-          content: `You are a helpful cooking assistant. Return recipes in the following JSON format:
+          content: `You are a helpful cooking assistant. 
+          
+          Important: Split the instructions into two sections:
+          1. prepSteps: All preparation steps that can be done before starting to cook (chopping, measuring, marinating, etc.)
+          2. cookingSteps: All steps that involve actual cooking (heating, mixing while cooking, timing, etc.)
+            
+          Return recipes in the following JSON format:
             {
               "@context": "http://schema.org",
               "@type": "Recipe",
@@ -42,15 +48,32 @@ export default async function handler(
               "recipeIngredient": ["ingredient 1", "ingredient 2"],
               "recipeInstructions": [
                 {
-                  "@type": "HowToStep",
-                  "text": "Step description",
+                  "@type": "HowToSection",
+                  "name": "Preparation",
+                  "itemListElement": [
+                    {
+                      "@type": "HowToStep",
+                      "text": "Preparation step description"
+                    }
+                  ]
+                },
+                {
+                  "@type": "HowToSection",
+                  "name": "Cooking",
+                  "itemListElement": [
+                    {
+                      "@type": "HowToStep",
+                      "text": "Cooking step description"
+                    }
+                  ]
                 }
               ],
               "recipeCategory": ["category 1", "category 2"],
               "recipeCuisine": ["cuisine 1", "cuisine 2"],
               "keywords": "keywords",
               "image": []
-            }`,
+            }
+        `,
         },
         {
           role: "user",
@@ -60,7 +83,9 @@ export default async function handler(
       response_format: { type: "json_object" },
     });
 
-    const recipeData = JSON.parse(completion.choices[0].message.content || "{}");
+    const recipeData = JSON.parse(
+      completion.choices[0].message.content || "{}"
+    );
 
     if (!recipeData) {
       throw new Error("No recipe generated");

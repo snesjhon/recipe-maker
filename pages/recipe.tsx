@@ -10,6 +10,36 @@ interface RecipePageProps {
   recipe: string;
 }
 
+function formatRecipeInstructions(recipe: Recipe) {
+  if (!recipe.recipeInstructions || !Array.isArray(recipe.recipeInstructions)) {
+    return {
+      prep: "",
+      cooking: "",
+    };
+  }
+
+  const prepSection = recipe.recipeInstructions.find(
+    (section) =>
+      section["@type"] === "HowToSection" && section.name === "Preparation"
+  );
+
+  const cookingSection = recipe.recipeInstructions.find(
+    (section) =>
+      section["@type"] === "HowToSection" && section.name === "Cooking"
+  );
+
+  return {
+    prep:
+      prepSection?.itemListElement
+        ?.map((step, index) => `${index + 1}. ${step.text}`)
+        .join("\n") || "",
+    cooking:
+      cookingSection?.itemListElement
+        ?.map((step, index) => `${index + 1}. ${step.text}`)
+        .join("\n") || "",
+  };
+}
+
 export const getServerSideProps: GetServerSideProps<RecipePageProps> = async ({
   query,
 }) => {
@@ -43,6 +73,7 @@ export default function SearchPage({
   recipe: encodedRecipe,
 }: RecipePageProps) {
   const recipe = JSON.parse(atob(encodedRecipe)) as Recipe;
+  const { prep, cooking } = formatRecipeInstructions(recipe);
 
   const markdown = recipe
     ? `
@@ -71,10 +102,9 @@ ${recipe.recipeYield ? `- Servings: ${recipe.recipeYield}` : ""}
 ## Ingredients
 ${recipe.recipeIngredient.map((ingredient) => `- ${ingredient}`).join("\n")}
 
-## Instructions
-${recipe.recipeInstructions
-  .map((step, index) => `${index + 1}. ${step.text}`)
-  .join("\n")}
+${prep ? `## Preparation Steps\n${prep}` : ""}
+
+${cooking ? `## Cooking Steps\n${cooking}` : ""}
 
 ---
 ${recipe.recipeCuisine ? `Cuisine: ${recipe.recipeCuisine.join(", ")}` : ""}
